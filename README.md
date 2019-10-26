@@ -19,7 +19,7 @@ kubectl apply -f knative/react-service-cnb.yaml
 
 kubectl get taskruns/reactive-app-mvn-build -o yaml
 
-kubectl logs -f $(kubectl get taskruns/hello-springboot-mvn-build \
+kubectl logs -f $(kubectl get taskruns/reactive-app-mvn-build \
   -ojsonpath={.status.podName}) -c step-build
 
 
