@@ -15,6 +15,13 @@ export HOST_NAME=$(kubectl get route reactive-web \
 
 curl -w'\n' -H "Host: $HOST_NAME" http://${IP_ADDRESS}/profiles
 
+kubectl apply -f knative/react-service-cnb.yaml
+
+kubectl get taskruns/reactive-app-mvn-build -o yaml
+
+kubectl logs -f $(kubectl get taskruns/hello-springboot-mvn-build \
+  -ojsonpath={.status.podName}) -c step-build
+
 
 ```
 ## License
