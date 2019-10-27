@@ -72,11 +72,6 @@
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>1.7.0</version>
                 <configuration>
-
-                    <allowInsecureRegistries>
-                        true
-                    </allowInsecureRegistries>
-
                     <to>
                         <image>gcr.io/none-219021/reactive-web</image>
                     </to>
