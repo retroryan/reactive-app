@@ -64,7 +64,7 @@
                         <image>gcr.io/none-219021/websocket-client</image>
                     </to>
                     <container>
-                        <mainClass>com.example.demo.DemoApplication</mainClass>
+                        <mainClass>com.example.socketclient.SocketClientApp</mainClass>
                     </container>
                 </configuration>
             </plugin>

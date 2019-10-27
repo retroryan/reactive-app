@@ -1,0 +1,12 @@
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  name: webscocket-client
+spec:
+  template:
+    spec:
+      containers:
+        - image: gcr.io/none-219021/webscocket-client
+            env:
+            - name: WS_SERVER
+              value: http://localhost:8080/ws/feed
