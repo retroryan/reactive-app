@@ -24,6 +24,27 @@ kubectl logs -f $(kubectl get taskruns/reactive-app-mvn-build \
 
 
 ```
+
+Follow steps in doc to create a custom domain and then run:
+
+```
+echo "http://reactive-web.default.$IP_ADDRESS.nip.io"
+
+http://reactive-web.default.35.224.148.61.nip.io/profiles
+
+```
+
+cluster local
+
+```
+kubectl apply -f knative/hello-react.yaml
+
+kubectl label ksvc reactive-web \
+  serving.knative.dev/visibility=cluster-local
+
+kubectl get ksvc hello-springboot
+```
+
 ## License
 
 Apache 2.0, see [LICENSE](LICENSE).
