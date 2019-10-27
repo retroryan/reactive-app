@@ -33,9 +33,11 @@ public class SocketClientApp {
     @Value("${app.client.url:http://localhost:8080/ws/feed}")
     private String uriString;
 
+    private static String ENV_URI = System.getenv("WS_SERVER");
+    private static boolean STORE_KAFKA = Boolean.parseBoolean(System.getenv("STORE_KAFKA"));
+
     URI getURI(String uri) {
         try {
-            String ENV_URI = System.getenv("WS_SERVER");
             return new URI(ENV_URI);
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -66,9 +68,11 @@ public class SocketClientApp {
     }
 
     private void pipeToKafkaMessage(SampleProducer producer, WebSocketSession session, String txt) {
-        log.info("Writing message to kafka "+ session.getId() + " -> " + txt);
+        log.info("Writing message to kafka " + session.getId() + " -> " + txt);
         try {
-            producer.sendMessages(TOPIC, txt);
+            if (STORE_KAFKA) {
+                producer.sendMessages(TOPIC, txt);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -81,7 +85,12 @@ public class SocketClientApp {
 
         log.info("appRunner creating producer");
 
-        SampleProducer producer = new SampleProducer(SampleProducer.BOOTSTRAP_SERVER);
+        SampleProducer producer = null;
+        if (STORE_KAFKA) {
+            producer = new SampleProducer(SampleProducer.BOOTSTRAP_SERVER);
+        }
+
+        SampleProducer finalProducer = producer;
 
         log.info("app runner producer created");
 
@@ -91,7 +100,7 @@ public class SocketClientApp {
             ParallelFlux<Mono<Void>> parallelClients = Flux.range(0, NUM_CLIENTS)
                     .subscribeOn(Schedulers.single())
                     .map(n ->
-                            connectToWS(producer, latch)
+                            connectToWS(finalProducer, latch)
                     )
                     .parallel();
 

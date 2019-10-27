@@ -14,3 +14,5 @@ spec:
               value: my-cluster-kafka-bootstrap:9092
             - name: KAFKA_TOPIC
               value: my-topic
+            - name: STORE_KAFKA
+              value: false

@@ -2,6 +2,7 @@ export WS_SERVER=http://localhost:8080/ws/feed
 export WS_SERVER=http://websocket-server.default.svc.cluster.local/ws/feed
 export BOOTSTRAP_SERVER=localhost:9092
 export KAFKA_TOPIC=my-topic
+export STORE_KAFKA=false
 
 ./mvnw spring-boot:run
 
