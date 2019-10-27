@@ -20,6 +20,8 @@ import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.example.socketclient.SampleProducer.TOPIC;
+
 @SpringBootApplication
 @Slf4j
 public class SocketClientApp {
@@ -42,7 +44,7 @@ public class SocketClientApp {
         return null;
     }
 
-    Mono<Void> wsConnectNetty() {
+    Mono<Void> wsConnectNetty(SampleProducer producer) {
         URI uri = getURI(uriString);
         log.info("Connecting to URI:" + uri);
         return new ReactorNettyWebSocketClient().execute(uri,
@@ -51,7 +53,7 @@ public class SocketClientApp {
                         .map(WebSocketMessage::getPayloadAsText)
                         .take(MAX_EVENTS)
                         .doOnNext(txt -> {
-                            pipeToKafkaMessage(session, txt);
+                            pipeToKafkaMessage(producer, session, txt);
                         })
                         .doOnSubscribe(subscriber -> log.info(session.getId() + ".OPEN"))
                         .doFinally(signalType -> {
@@ -63,10 +65,10 @@ public class SocketClientApp {
         );
     }
 
-    private void pipeToKafkaMessage(WebSocketSession session, String txt) {
+    private void pipeToKafkaMessage(SampleProducer producer, WebSocketSession session, String txt) {
         log.info(session.getId() + " -> " + txt);
         try {
-            // producer.sendMessages(TOPIC, txt);
+            producer.sendMessages(TOPIC, txt);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -74,21 +76,10 @@ public class SocketClientApp {
         log.info(session.getId() + " -> " + txt);
     }
 
-    // brute-force search :p
-    boolean is_prime(long num) {
-        if (num <= 1) return false;
-        if (num % 2 == 0 && num > 2) return false;
-        for (int i = 3; i < num / 2; i += 2) {
-            if (num % i == 0)
-                return false;
-        }
-        return true;
-    }
-
     @Bean
     ApplicationRunner appRunner() {
 
-        //SampleProducer producer = new SampleProducer(SampleProducer.BOOTSTRAP_SERVERS);
+        SampleProducer producer = new SampleProducer(SampleProducer.BOOTSTRAP_SERVER);
 
         return args -> {
             final CountDownLatch latch = new CountDownLatch(NUM_CLIENTS);
@@ -96,8 +87,7 @@ public class SocketClientApp {
             ParallelFlux<Mono<Void>> parallelClients = Flux.range(0, NUM_CLIENTS)
                     .subscribeOn(Schedulers.single())
                     .map(n ->
-                            //connectToWS(producer, latch)
-                            connectToWS(latch)
+                            connectToWS(producer, latch)
                     )
                     .parallel();
 
@@ -110,10 +100,10 @@ public class SocketClientApp {
         };
     }
 
-    private Mono<Void> connectToWS(CountDownLatch latch) {
+    private Mono<Void> connectToWS(SampleProducer producer, CountDownLatch latch) {
         Mono<Void> nettyMonoConnect = null;
         try {
-            nettyMonoConnect = wsConnectNetty()
+            nettyMonoConnect = wsConnectNetty(producer)
                     .doOnTerminate(latch::countDown);
         } catch (Exception e) {
             e.printStackTrace();

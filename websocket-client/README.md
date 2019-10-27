@@ -1,5 +1,7 @@
 export WS_SERVER=http://localhost:8080/ws/feed
 export WS_SERVER=http://websocket-server.default.svc.cluster.local/ws/feed
+export BOOTSTRAP_SERVER=localhost:9092
+export KAFKA_TOPIC=my-topic
 
 ./mvnw spring-boot:run
 
@@ -17,3 +19,16 @@ Lab 7 - Custom Domain
 
 
 export WS_SERVER=http://websocket-server.default.35.224.148.61.nip.io/ws/feed
+
+
+kubectl logs webscocket-client-59vhl-deployment-658cc6fdf5-skv45 -c user-container
+
+kubectl get revision
+kubectl get ksvc
+kubectl get routes
+
+kubectl get pods -n knative-serving
+kubectl describe ksvc/websocket-server
+
+
+kubectl -n knative-serving --as=system:serviceaccount:knative-serving:controller auth can-i get configmaps

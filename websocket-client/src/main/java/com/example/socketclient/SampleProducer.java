@@ -1,13 +1,6 @@
 package com.example.socketclient;
 
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -15,18 +8,24 @@ import org.apache.kafka.common.serialization.IntegerSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import reactor.core.publisher.Flux;
 import reactor.kafka.sender.KafkaSender;
 import reactor.kafka.sender.SenderOptions;
 import reactor.kafka.sender.SenderRecord;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Sample producer application using Reactive API for Kafka.
  * To run sample producer
  * <ol>
  *   <li> Start Zookeeper and Kafka server
- *   <li> Update {@link #BOOTSTRAP_SERVERS} and {@link #TOPIC} if required
+ *   <li> Update {@link #BOOTSTRAP_SERVER} and {@link #TOPIC} if required
  *   <li> Create Kafka topic {@link #TOPIC}
  *   <li> Run {@link SampleProducer} as Java application with all dependent jars in the CLASSPATH (eg. from IDE).
  *   <li> Shutdown Kafka server and Zookeeper when no longer required
@@ -36,11 +35,13 @@ public class SampleProducer {
 
     private static final Logger log = LoggerFactory.getLogger(SampleProducer.class.getName());
 
-     static final String BOOTSTRAP_SERVERS = "localhost:9092";
-     static final String TOPIC = "demo-topic";
+    //static final String BOOTSTRAP_SERVERS = "localhost:9092";
+    static String BOOTSTRAP_SERVER = System.getenv("BOOTSTRAP_SERVER");
+    //static final String TOPIC = "my-topic";
+    static final String TOPIC = System.getenv("KAFKA_TOPIC");
 
-     final KafkaSender<Integer, String> sender;
-     final SimpleDateFormat dateFormat;
+    final KafkaSender<Integer, String> sender;
+    final SimpleDateFormat dateFormat;
 
     public SampleProducer(String bootstrapServers) {
 
@@ -78,7 +79,7 @@ public class SampleProducer {
     public static void NOT_main(String[] args) throws Exception {
         int count = 20;
         CountDownLatch latch = new CountDownLatch(count);
-        SampleProducer producer = new SampleProducer(BOOTSTRAP_SERVERS);
+        SampleProducer producer = new SampleProducer(BOOTSTRAP_SERVER);
         //producer.sendMessages(TOPIC, count, latch);
         latch.await(10, TimeUnit.SECONDS);
         producer.close();
