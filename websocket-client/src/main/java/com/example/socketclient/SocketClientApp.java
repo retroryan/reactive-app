@@ -66,20 +66,24 @@ public class SocketClientApp {
     }
 
     private void pipeToKafkaMessage(SampleProducer producer, WebSocketSession session, String txt) {
-        log.info(session.getId() + " -> " + txt);
+        log.info("Writing message to kafka "+ session.getId() + " -> " + txt);
         try {
             producer.sendMessages(TOPIC, txt);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        log.info(session.getId() + " -> " + txt);
+        log.info(" Message written to kafka " + session.getId() + " -> " + txt);
     }
 
     @Bean
     ApplicationRunner appRunner() {
 
+        log.info("appRunner creating producer");
+
         SampleProducer producer = new SampleProducer(SampleProducer.BOOTSTRAP_SERVER);
+
+        log.info("app runner producer created");
 
         return args -> {
             final CountDownLatch latch = new CountDownLatch(NUM_CLIENTS);

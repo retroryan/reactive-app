@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Sample producer application using Reactive API for Kafka.
@@ -40,26 +41,36 @@ public class SampleProducer {
     //static final String TOPIC = "my-topic";
     static final String TOPIC = System.getenv("KAFKA_TOPIC");
 
-    final KafkaSender<Integer, String> sender;
-    final SimpleDateFormat dateFormat;
+    KafkaSender<Integer, String> sender;
+    SimpleDateFormat dateFormat;
 
     public SampleProducer(String bootstrapServers) {
 
-        Map<String, Object> props = new HashMap<>();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, "sample-producer");
-        props.put(ProducerConfig.ACKS_CONFIG, "all");
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        SenderOptions<Integer, String> senderOptions = SenderOptions.create(props);
+        log.info("Connecting to kafka in sample producer");
+        try {
+            Map<String, Object> props = new HashMap<>();
+            props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+            props.put(ProducerConfig.CLIENT_ID_CONFIG, "sample-producer");
+            props.put(ProducerConfig.ACKS_CONFIG, "all");
+            props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
+            props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+            SenderOptions<Integer, String> senderOptions = SenderOptions.create(props);
 
-        sender = KafkaSender.create(senderOptions);
-        dateFormat = new SimpleDateFormat("HH:mm:ss:SSS z dd MMM yyyy");
+            log.info("kafka props: " + props);
+
+            sender = KafkaSender.create(senderOptions);
+            dateFormat = new SimpleDateFormat("HH:mm:ss:SSS z dd MMM yyyy");
+
+            log.info("KafkaSender created " + sender);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+    AtomicInteger messageKey = new AtomicInteger();
     public void sendMessages(String topic, String message) throws InterruptedException {
         sender.<Integer>send(Flux.range(1, 1)
-                .map(i -> SenderRecord.create(new ProducerRecord<>(topic, i, message), i)))
+                .map(i -> SenderRecord.create(new ProducerRecord<>(topic, messageKey.getAndIncrement(), message), i)))
                 .doOnError(e -> log.error("Send failed", e))
                 .subscribe(r -> {
                     RecordMetadata metadata = r.recordMetadata();
