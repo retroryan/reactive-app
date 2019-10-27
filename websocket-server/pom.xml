@@ -67,7 +67,7 @@
                         true
                     </allowInsecureRegistries>
                     <to>
-                        <image>gcr.io/none-219021/reactive-web</image>
+                        <image>gcr.io/none-219021/websocket-server</image>
                     </to>
                     <container>
                         <mainClass>com.example.socketserver.WebSocketServerApp</mainClass>
