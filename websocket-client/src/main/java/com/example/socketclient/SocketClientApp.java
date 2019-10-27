@@ -68,26 +68,30 @@ public class SocketClientApp {
     }
 
     private void pipeToKafkaMessage(SampleProducer producer, WebSocketSession session, String txt) {
-        log.info("Writing message to kafka " + session.getId() + " -> " + txt);
         try {
             if (STORE_KAFKA) {
+                log.info("Writing message to kafka " + session.getId() + " -> " + txt);
                 producer.sendMessages(TOPIC, txt);
+                log.info(" Message written to kafka " + session.getId() + " -> " + txt);
+
+            }
+            else  {
+                log.info(session.getId() + " -> " + txt);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        log.info(" Message written to kafka " + session.getId() + " -> " + txt);
     }
 
     @Bean
     ApplicationRunner appRunner() {
 
-        log.info("appRunner creating producer");
+        log.info("appRunner creating producer with STORE_KAFKA: " + STORE_KAFKA);
 
         SampleProducer producer = null;
         if (STORE_KAFKA) {
-            producer = new SampleProducer(SampleProducer.BOOTSTRAP_SERVER);
+            producer = new SampleProducer(SampleProducer.BOOTSTRAP_SERVERS);
         }
 
         SampleProducer finalProducer = producer;

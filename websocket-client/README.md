@@ -1,6 +1,8 @@
 export WS_SERVER=http://localhost:8080/ws/feed
-export WS_SERVER=http://websocket-server.default.svc.cluster.local/ws/feed
 export BOOTSTRAP_SERVER=localhost:9092
+
+export WS_SERVER=http://websocket-server.default.35.224.148.61.nip.io/ws/feed
+export BOOTSTRAP_SERVER=my-cluster-kafka-bootstrap:9092
 export KAFKA_TOPIC=my-topic
 export STORE_KAFKA=false
 
