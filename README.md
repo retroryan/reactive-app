@@ -7,6 +7,9 @@
 [Knative Workshop](https://docs.google.com/document/d/1QKjyWAJxZahQFUc8FkM_0gVtgDRUDgJq7zcJLiFjjjw/edit#)
 
 ```
+
+./mvnw spring-boot:run
+
 kubectl apply -f knative/hello-react.yaml
 
 export IP_ADDRESS=$(kubectl get svc istio-ingressgateway -n istio-system \

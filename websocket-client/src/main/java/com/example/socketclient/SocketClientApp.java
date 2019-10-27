@@ -33,7 +33,8 @@ public class SocketClientApp {
 
     URI getURI(String uri) {
         try {
-            return new URI(uri);
+            String ENV_URI = System.getenv("WS_SERVER");
+            return new URI(ENV_URI);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -41,7 +42,7 @@ public class SocketClientApp {
         return null;
     }
 
-    Mono<Void> wsConnectNetty(SampleProducer producer) {
+    Mono<Void> wsConnectNetty() {
         URI uri = getURI(uriString);
         log.info("Connecting to URI:" + uri);
         return new ReactorNettyWebSocketClient().execute(uri,
@@ -50,7 +51,7 @@ public class SocketClientApp {
                         .map(WebSocketMessage::getPayloadAsText)
                         .take(MAX_EVENTS)
                         .doOnNext(txt -> {
-                            pipeToKafkaMessage(producer, session, txt);
+                            pipeToKafkaMessage(session, txt);
                         })
                         .doOnSubscribe(subscriber -> log.info(session.getId() + ".OPEN"))
                         .doFinally(signalType -> {
@@ -62,7 +63,7 @@ public class SocketClientApp {
         );
     }
 
-    private void pipeToKafkaMessage(SampleProducer producer, WebSocketSession session, String txt) {
+    private void pipeToKafkaMessage(WebSocketSession session, String txt) {
         log.info(session.getId() + " -> " + txt);
         try {
             // producer.sendMessages(TOPIC, txt);
@@ -87,7 +88,7 @@ public class SocketClientApp {
     @Bean
     ApplicationRunner appRunner() {
 
-        SampleProducer producer = new SampleProducer(SampleProducer.BOOTSTRAP_SERVERS);
+        //SampleProducer producer = new SampleProducer(SampleProducer.BOOTSTRAP_SERVERS);
 
         return args -> {
             final CountDownLatch latch = new CountDownLatch(NUM_CLIENTS);
@@ -95,7 +96,8 @@ public class SocketClientApp {
             ParallelFlux<Mono<Void>> parallelClients = Flux.range(0, NUM_CLIENTS)
                     .subscribeOn(Schedulers.single())
                     .map(n ->
-                            connectToWS(producer, latch)
+                            //connectToWS(producer, latch)
+                            connectToWS(latch)
                     )
                     .parallel();
 
@@ -108,10 +110,10 @@ public class SocketClientApp {
         };
     }
 
-    private Mono<Void> connectToWS(SampleProducer producer, CountDownLatch latch) {
+    private Mono<Void> connectToWS(CountDownLatch latch) {
         Mono<Void> nettyMonoConnect = null;
         try {
-            nettyMonoConnect = wsConnectNetty(producer)
+            nettyMonoConnect = wsConnectNetty()
                     .doOnTerminate(latch::countDown);
         } catch (Exception e) {
             e.printStackTrace();
