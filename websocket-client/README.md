@@ -1,9 +1,9 @@
 export WS_SERVER=http://localhost:8080/ws/feed
 export BOOTSTRAP_SERVER=localhost:9092
 
-export WS_SERVER=http://websocket-server.default.35.224.148.61.nip.io/ws/feed
-export BOOTSTRAP_SERVER=http://my-cluster-kafka-bootstrap:9092
-export KAFKA_TOPIC=my-topic
+export WS_SERVER=ws://stackoverflow-to-ws.default.35.224.5.101.nip.io/questions
+export BOOTSTRAP_SERVER=my-cluster-kafka-bootstrap:9092
+export KAFKA_TOPIC=stackoverflow-questions
 export STORE_KAFKA=false
 
 ./mvnw spring-boot:run

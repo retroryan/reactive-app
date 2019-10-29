@@ -51,7 +51,7 @@ public class SampleProducer {
 
         try {
             Map<String, Object> props = new HashMap<>();
-            props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "my-cluster-kafka-bootstrap:9092");
+            props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
             props.put(ProducerConfig.CLIENT_ID_CONFIG, "sample-producer");
             props.put(ProducerConfig.ACKS_CONFIG, "all");
             props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
